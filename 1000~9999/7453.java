@@ -1,60 +1,80 @@
-package noj.am;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-		StringTokenizer st;
-		int N = Integer.parseInt(br.readLine());
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    StringTokenizer st;
+    int N = Integer.parseInt(br.readLine());
 
-		long[][] arr = new long[N][4];
+    int[][] arr = new int[N][4];
 
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < 4; j++) {
-				arr[i][j] = Long.parseLong(st.nextToken());
-			}
-		}
+    for (int i = 0; i < N; i++) {
+      st = new StringTokenizer(br.readLine());
+      for (int j = 0; j < 4; j++) {
+        arr[i][j] = Integer.parseInt(st.nextToken());
+      }
+    }
 
-		long[] AB = new long[N * N];
-		Map<Long, Long> map = new HashMap<>();
-		int idx = 0;
+    int[] AB = new int[N * N];
+    int[] CD = new int[N * N];
+    int idx = 0;
 
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < N; j++) {
-				AB[idx++] = arr[i][0] + arr[j][1];
-				long sum = arr[i][2] + arr[j][3];
+    for (int i = 0; i < N; i++) {
+      for (int j = 0; j < N; j++) {
+        AB[idx] = arr[i][0] + arr[j][1];
+        CD[idx] = arr[i][2] + arr[j][3];
+        idx++;
+      }
+    }
+    Arrays.sort(CD);
 
-				if (map.containsKey(sum)) {
-					map.put(sum, map.get(sum) + 1);
-				} else {
-					map.put(sum, 1L);
-				}
-			}
-		}
+    long ans = 0;
+    for (int key : AB) {
+      int upper = upperBound(CD, -key);
+      int lower = lowerBound(CD, -key);
+      ans += (upper - lower);
+    }
 
-		long ans = 0;
-		for (int i = 0; i < AB.length; i++) {
-			long key = -AB[i];
+    bw.write(ans + "\n");
+    bw.flush();
+    bw.close();
+    br.close();
+  }
 
-			if (map.containsKey(key)) {
-				ans += map.get(key);
-			}
-		}
+  static int upperBound(int[] arr, int find) {
+    int left = 0;
+    int right = arr.length - 1;
+    while (left <= right) {
+      int mid = (left + right) / 2;
+      if (arr[mid] <= find) {
+        left = mid + 1;
+      } else {
+        right = mid;
+      }
+    }
+    return left;
+  }
 
-		bw.write(ans + "\n");
-		bw.flush();
-		bw.close();
-		br.close();
+  static int lowerBound(int[] arr, int find) {
+    int left = 0;
+    int right = arr.length - 1;
+    while (left <= right) {
+      int mid = (left + right) / 2;
+      if (arr[mid] < find) {
+        left = mid + 1;
+      } else {
+        right = mid;
+      }
+    }
+    return left;
+  }
 
-	}
 }
