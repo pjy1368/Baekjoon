@@ -1,82 +1,56 @@
-package noj.am;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.LinkedList;
-import java.util.Queue;
 
-class Number {
-	int n;
-	int cnt;
-	String command;
+class Value {
 
-	Number(int n, int cnt, String command) {
-		this.n = n;
-		this.cnt = cnt;
-		this.command = command;
-	}
+  int n;
+  String process;
+
+  Value(int n, String process) {
+    this.n = n;
+    this.process = process;
+  }
 }
 
 public class Main {
-	static int ansNum;
-	static String ans;
 
-	public static void main(String[] args) throws Exception {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+  public static void main(String[] args) throws IOException {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+    int N = Integer.parseInt(br.readLine());
 
-		int N = Integer.parseInt(br.readLine());
+    Value[] dp = new Value[N + 1];
+    dp[1] = new Value(0, "1");
 
-		if (N == 1) {
-			bw.write("0\n");
-			bw.flush();
-			bw.close();
-			br.close();
-			return;
-		}
+    for (int i = 2; i <= N; i++) {
+      int cnt = Integer.MAX_VALUE;
+      int before = 0;
+      if (i % 3 == 0) {
+        cnt = dp[i / 3].n;
+        before = i / 3;
+      }
 
-		ansNum = 0;
-		ans = "";
-		BFS(N);
+      if (i % 2 == 0) {
+        if (cnt > dp[i / 2].n) {
+          cnt = dp[i / 2].n;
+          before = i / 2;
+        }
+      }
 
-		bw.write(ansNum + "\n");
-		bw.write(ans + "\n");
-		bw.flush();
-		bw.close();
-		br.close();
-	}
+      if (cnt > dp[i - 1].n) {
+        before = i - 1;
+      }
 
-	public static void BFS(int N) {
-		Queue<Number> q = new LinkedList<>();
-		q.offer(new Number(N, 0, String.valueOf(N)));
-		boolean[] visited = new boolean[N + 1];
-
-		while (!q.isEmpty()) {
-			Number num = q.poll();
-
-			if (num.n == 1) {
-				ansNum = num.cnt;
-				ans = num.command;
-				return;
-			}
-
-			if (num.n % 3 == 0 && !visited[num.n / 3]) {
-				visited[num.n / 3] = true;
-				q.offer(new Number(num.n / 3, num.cnt + 1, num.command + " " + (num.n / 3)));
-			}
-
-			if (num.n % 2 == 0 && !visited[num.n / 2]) {
-				visited[num.n / 2] = true;
-				q.offer(new Number(num.n / 2, num.cnt + 1, num.command + " " + (num.n / 2)));
-			}
-
-			if (!visited[num.n - 1]) {
-				visited[num.n - 1] = true;
-				q.offer(new Number(num.n - 1, num.cnt + 1, num.command + " " + (num.n - 1)));
-			}
-		}
-	}
+      dp[i] = new Value(dp[before].n + 1, i + " " + dp[before].process);
+    }
+    bw.write(dp[N].n + "\n");
+    bw.write(dp[N].process + "\n");
+    bw.flush();
+    bw.close();
+    br.close();
+  }
 
 }
